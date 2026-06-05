@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { getActiveDevices } from '../api/client';
+import { getActiveDevices, deleteDevice } from '../api/client';
 
 export default function DeviceStatus() {
   const [data, setData] = useState({ devices: [], workloadMap: {} });
@@ -23,6 +23,19 @@ export default function DeviceStatus() {
     };
   }, []);
 
+  async function handleDelete(deviceId) {
+    if (!window.confirm(`Are you sure you want to delete device ${deviceId}?`)) return;
+    try {
+      await deleteDevice(deviceId);
+      setData(prev => ({
+        ...prev,
+        devices: prev.devices.filter(d => d.deviceId !== deviceId)
+      }));
+    } catch (err) {
+      alert(err.message);
+    }
+  }
+
   return (
     <div className="card">
       <h2>Active devices</h2>
@@ -38,6 +51,7 @@ export default function DeviceStatus() {
               <th>Label</th>
               <th>Last heartbeat</th>
               <th>Workload</th>
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -49,6 +63,9 @@ export default function DeviceStatus() {
                 <td>
                   A:{d.workload?.assigned ?? 0} P:{d.workload?.inProgress ?? 0} C:
                   {d.workload?.completed ?? 0}
+                </td>
+                <td>
+                  <button onClick={() => handleDelete(d.deviceId)} style={{ padding: '4px 8px', fontSize: '0.8rem', background: '#dc3545', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Delete</button>
                 </td>
               </tr>
             ))}

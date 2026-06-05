@@ -121,15 +121,37 @@ export default function PastCampaigns({ refreshKey }) {
                               <strong>Retries:</strong> up to 3 attempts per failed number (8s apart)
                             </p>
                             <p>
-                              <strong>Numbers count:</strong> {detail.numbers?.length ?? 0}
-                              {detail.assignments?.length > 0 && (
-                                <>
-                                  {' '}
-                                  · <strong>Devices:</strong>{' '}
-                                  {detail.assignments.map((a) => a.deviceId).join(', ')}
-                                </>
-                              )}
+                              <strong>Total numbers:</strong> {detail.numbers?.length ?? 0}
                             </p>
+                            {detail.assignments?.length > 0 && (
+                              <div className="assignments-box" style={{ marginTop: '1rem', background: '#f8f9fa', padding: '1rem', borderRadius: '4px' }}>
+                                <strong style={{ display: 'block', marginBottom: '0.5rem' }}>Device Distribution:</strong>
+                                <table style={{ width: '100%', fontSize: '0.9rem', background: '#fff' }}>
+                                  <thead>
+                                    <tr>
+                                      <th style={{ padding: '8px', borderBottom: '1px solid #ddd' }}>Device ID</th>
+                                      <th style={{ padding: '8px', borderBottom: '1px solid #ddd' }}>Assigned Count</th>
+                                      <th style={{ padding: '8px', borderBottom: '1px solid #ddd' }}>Status / Started At</th>
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    {detail.assignments.map((a) => (
+                                      <tr key={a.deviceId}>
+                                        <td style={{ padding: '8px', borderBottom: '1px solid #eee' }}>{a.deviceId}</td>
+                                        <td style={{ padding: '8px', borderBottom: '1px solid #eee' }}>{a.numbers?.length || 0} numbers</td>
+                                        <td style={{ padding: '8px', borderBottom: '1px solid #eee' }}>
+                                          {a.dispatchedAt ? (
+                                            <span style={{ color: '#28a745', fontWeight: 'bold' }}>Started: {formatDate(a.dispatchedAt)}</span>
+                                          ) : (
+                                            <span style={{ color: '#ffc107', fontWeight: 'bold' }}>Pending...</span>
+                                          )}
+                                        </td>
+                                      </tr>
+                                    ))}
+                                  </tbody>
+                                </table>
+                              </div>
+                            )}
                           </div>
                         )}
                       </td>

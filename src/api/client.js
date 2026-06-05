@@ -71,3 +71,7 @@ export async function getCampaign(id) {
 export async function getActiveDevices() {
   return apiFetch('/api/devices/active');
 }
+
+export async function deleteDevice(deviceId) {
+  return apiFetch(`/api/devices/${deviceId}`, { method: 'DELETE' });
+}
