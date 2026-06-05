@@ -79,3 +79,7 @@ export async function deleteDevice(deviceId) {
 export async function retryCampaign(campaignId) {
   return apiFetch(`/api/campaigns/${campaignId}/retry`, { method: 'POST' });
 }
+
+export async function deleteCampaign(campaignId) {
+  return apiFetch(`/api/campaigns/${campaignId}`, { method: 'DELETE' });
+}

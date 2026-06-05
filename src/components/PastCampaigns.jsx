@@ -1,5 +1,5 @@
 import { Fragment, useEffect, useState } from 'react';
-import { getCampaign, listCampaigns, retryCampaign } from '../api/client';
+import { getCampaign, listCampaigns, retryCampaign, deleteCampaign } from '../api/client';
 
 function formatDate(iso) {
   if (!iso) return '—';
@@ -57,6 +57,23 @@ export default function PastCampaigns({ refreshKey }) {
       setDetail(null);
     } catch (err) {
       alert(`Retry failed: ${err.message}`);
+    } finally {
+      setDetailLoading(false);
+    }
+  }
+
+  async function handleDelete(campaignId) {
+    if (!window.confirm('Are you sure you want to PERMANENTLY delete this campaign and all its history?')) return;
+    try {
+      setDetailLoading(true);
+      await deleteCampaign(campaignId);
+      // Refresh the list
+      const updated = await listCampaigns();
+      setCampaigns(updated);
+      setExpandedId(null);
+      setDetail(null);
+    } catch (err) {
+      alert(`Delete failed: ${err.message}`);
     } finally {
       setDetailLoading(false);
     }
@@ -170,18 +187,26 @@ export default function PastCampaigns({ refreshKey }) {
                                 </table>
                               </div>
                             )}
-                            {(c.status === 'failed' || (c.status === 'completed' && c.stats?.failed > 0)) && (
-                              <div style={{ marginTop: '1rem', borderTop: '1px solid #eee', paddingTop: '1rem' }}>
+                            <div style={{ marginTop: '1rem', borderTop: '1px solid #eee', paddingTop: '1rem', display: 'flex', gap: '10px' }}>
+                              {(c.status === 'failed' || (c.status === 'completed' && c.stats?.failed > 0)) && (
                                 <button
                                   onClick={() => handleRetry(c._id)}
                                   style={{ padding: '8px 16px', background: '#007bff', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}
                                 >
                                   Retry Failed Campaign
                                 </button>
-                                <p style={{ fontSize: '0.8rem', color: '#666', marginTop: '4px' }}>
-                                  {c.status === 'failed' ? 'This will restart the entire campaign.' : 'This will create a new campaign containing only the failed numbers.'}
-                                </p>
-                              </div>
+                              )}
+                              <button
+                                onClick={() => handleDelete(c._id)}
+                                style={{ padding: '8px 16px', background: '#dc3545', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}
+                              >
+                                Delete Campaign
+                              </button>
+                            </div>
+                            {(c.status === 'failed' || (c.status === 'completed' && c.stats?.failed > 0)) && (
+                              <p style={{ fontSize: '0.8rem', color: '#666', marginTop: '4px' }}>
+                                {c.status === 'failed' ? 'Retry will restart the entire campaign.' : 'Retry will create a new campaign containing only the failed numbers.'}
+                              </p>
                             )}
                           </div>
                         )}
