@@ -1,11 +1,9 @@
 import { useState } from 'react';
 import { createCampaign } from '../api/client';
-import ImageUpload from './ImageUpload';
 
 export default function CampaignForm({ numbers, onSubmitted }) {
   const [name, setName] = useState('');
   const [text, setText] = useState('');
-  const [imageUrl, setImageUrl] = useState('');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
@@ -28,13 +26,12 @@ export default function CampaignForm({ numbers, onSubmitted }) {
       const campaign = await createCampaign({
         name: name.trim(),
         text: text.trim(),
-        imageUrl: imageUrl.trim(),
+        imageUrl: '', // Hardcode empty for SMS
         numbers,
       });
       setMessage(`Campaign queued: ${campaign._id} (${numbers.length} numbers)`);
       setName('');
       setText('');
-      setImageUrl('');
       onSubmitted?.(campaign);
     } catch (err) {
       setError(err.message);
@@ -45,15 +42,13 @@ export default function CampaignForm({ numbers, onSubmitted }) {
 
   return (
     <div className="card">
-      <h2>New campaign</h2>
+      <h2>New SMS campaign</h2>
       <form onSubmit={handleSubmit}>
         <label>Campaign name</label>
         <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="June promo" />
 
-        <label>Message text (RCS)</label>
+        <label>Message text (SMS)</label>
         <textarea value={text} onChange={(e) => setText(e.target.value)} placeholder="Your message…" />
-
-        <ImageUpload imageUrl={imageUrl} onImageUrlChange={setImageUrl} />
 
         <div className="stats">
           <span className="stat">{numbers.length} numbers loaded</span>

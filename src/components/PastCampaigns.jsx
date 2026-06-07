@@ -119,7 +119,6 @@ export default function PastCampaigns({ refreshKey }) {
                 <th>Sent</th>
                 <th>Failed</th>
                 <th>Pending</th>
-                <th>Image</th>
               </tr>
             </thead>
             <tbody>
@@ -138,11 +137,10 @@ export default function PastCampaigns({ refreshKey }) {
                     <td>{c.stats?.sent ?? 0}</td>
                     <td>{c.stats?.failed ?? 0}</td>
                     <td>{c.stats?.pending ?? 0}</td>
-                    <td>{c.imageUrl ? 'Yes' : '—'}</td>
                   </tr>
                   {expandedId === c._id && (
                     <tr className="detail-row">
-                      <td colSpan={8}>
+                      <td colSpan={7}>
                         {detailLoading && <span style={{ color: '#9aa0a6' }}>Loading details…</span>}
                         {!detailLoading && detail?.error && (
                           <div className="error">{detail.error}</div>
@@ -152,14 +150,6 @@ export default function PastCampaigns({ refreshKey }) {
                             <p>
                               <strong>Message:</strong> {detail.text}
                             </p>
-                            {detail.imageUrl && (
-                              <div className="image-preview small">
-                                <img src={detail.imageUrl} alt="" />
-                                <a href={detail.imageUrl} target="_blank" rel="noreferrer">
-                                  Open image
-                                </a>
-                              </div>
-                            )}
                             {detail.error && (
                               <p className="error">
                                 <strong>Error:</strong> {detail.error}
