@@ -178,20 +178,20 @@ export default function PastCampaigns({ refreshKey }) {
                             {detail.assignments?.length > 0 && (
                               <div className="assignments-box" style={{ marginTop: '1rem', background: '#f8f9fa', padding: '1rem', borderRadius: '4px' }}>
                                 <strong style={{ display: 'block', marginBottom: '0.5rem' }}>Device Distribution:</strong>
-                                <table style={{ width: '100%', fontSize: '0.9rem', background: '#fff' }}>
+                                <table style={{ width: '100%', fontSize: '0.9rem', background: '#000000' }}>
                                   <thead>
                                     <tr>
-                                      <th style={{ padding: '8px', borderBottom: '1px solid #ddd' }}>Device ID</th>
-                                      <th style={{ padding: '8px', borderBottom: '1px solid #ddd' }}>Assigned Count</th>
-                                      <th style={{ padding: '8px', borderBottom: '1px solid #ddd' }}>Status / Started At</th>
+                                      <th style={{ padding: '8px', borderBottom: '1px solid #000000' }}>Device ID</th>
+                                      <th style={{ padding: '8px', borderBottom: '1px solid #000000' }}>Assigned Count</th>
+                                      <th style={{ padding: '8px', borderBottom: '1px solid #000000' }}>Status / Started At</th>
                                     </tr>
                                   </thead>
                                   <tbody>
                                     {detail.assignments.map((a) => (
                                       <tr key={a.deviceId}>
-                                        <td style={{ padding: '8px', borderBottom: '1px solid #eee' }}>{a.deviceId}</td>
-                                        <td style={{ padding: '8px', borderBottom: '1px solid #eee' }}>{a.numbers?.length || 0} numbers</td>
-                                        <td style={{ padding: '8px', borderBottom: '1px solid #eee' }}>
+                                        <td style={{ padding: '8px', borderBottom: '1px solid #000000' }}>{a.deviceId}</td>
+                                        <td style={{ padding: '8px', borderBottom: '1px solid #000000' }}>{a.numbers?.length || 0} numbers</td>
+                                        <td style={{ padding: '8px', borderBottom: '1px solid #000000' }}>
                                           {a.dispatchedAt ? (
                                             <span style={{ color: '#28a745', fontWeight: 'bold' }}>Started: {formatDate(a.dispatchedAt)}</span>
                                           ) : (
@@ -211,7 +211,7 @@ export default function PastCampaigns({ refreshKey }) {
                                 <button
                                   onClick={() => loadLogs(c._id)}
                                   disabled={logsLoading}
-                                  style={{ padding: '6px 12px', background: '#6c757d', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+                                  style={{ padding: '6px 12px', background: '#6c757d', color: '#000000', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
                                 >
                                   {logsLoading ? 'Loading logs...' : 'Load Message Logs'}
                                 </button>
