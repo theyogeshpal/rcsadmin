@@ -1,9 +1,7 @@
 import { useState, useEffect } from 'react';
-import { useAuth } from '../context/AuthContext';
-import { API_BASE } from '../api/client';
+import { apiFetch } from '../api/client';
 
 export default function Settings() {
-  const { token } = useAuth();
   const [settings, setSettings] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -15,17 +13,12 @@ export default function Settings() {
 
   async function fetchSettings() {
     try {
-      const res = await fetch(`${API_BASE}/api/settings`, {
-        headers: { Authorization: `Bearer ${token}` },
+      const data = await apiFetch('/api/settings');
+      setSettings({
+        cooldownMs: data.cooldownMs,
+        dailyLimitPerDevice: data.dailyLimitPerDevice,
+        nextDayStartTime: data.nextDayStartTime,
       });
-      if (res.ok) {
-        const data = await res.json();
-        setSettings({
-          cooldownMs: data.cooldownMs,
-          dailyLimitPerDevice: data.dailyLimitPerDevice,
-          nextDayStartTime: data.nextDayStartTime,
-        });
-      }
     } catch (err) {
       console.error(err);
     } finally {
@@ -38,22 +31,13 @@ export default function Settings() {
     setSaving(true);
     setMessage('');
     try {
-      const res = await fetch(`${API_BASE}/api/settings`, {
+      await apiFetch('/api/settings', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
         body: JSON.stringify(settings),
       });
 
-      if (res.ok) {
-        setMessage('Settings saved successfully!');
-        setTimeout(() => setMessage(''), 3000);
-      } else {
-        const err = await res.json();
-        setMessage(`Error: ${err.error}`);
-      }
+      setMessage('Settings saved successfully!');
+      setTimeout(() => setMessage(''), 3000);
     } catch (err) {
       setMessage(`Error: ${err.message}`);
     } finally {
