@@ -10,7 +10,7 @@ export function setToken(token) {
   else localStorage.removeItem(TOKEN_KEY);
 }
 
-async function apiFetch(path, options = {}) {
+export async function apiFetch(path, options = {}) {
   const headers = { ...options.headers };
   const token = getToken();
   if (token) headers.Authorization = `Bearer ${token}`;
