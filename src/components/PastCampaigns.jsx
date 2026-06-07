@@ -1,5 +1,5 @@
 import { Fragment, useEffect, useState } from 'react';
-import { getCampaign, listCampaigns, retryCampaign, deleteCampaign } from '../api/client';
+import { getCampaign, getCampaignLogs, listCampaigns, retryCampaign, deleteCampaign } from '../api/client';
 
 function formatDate(iso) {
   if (!iso) return '—';
@@ -17,6 +17,9 @@ export default function PastCampaigns({ refreshKey }) {
   const [expandedId, setExpandedId] = useState(null);
   const [detail, setDetail] = useState(null);
   const [detailLoading, setDetailLoading] = useState(false);
+  
+  const [logsData, setLogsData] = useState(null);
+  const [logsLoading, setLogsLoading] = useState(false);
 
   useEffect(() => {
     setLoading(true);
@@ -30,10 +33,12 @@ export default function PastCampaigns({ refreshKey }) {
     if (expandedId === id) {
       setExpandedId(null);
       setDetail(null);
+      setLogsData(null);
       return;
     }
     setExpandedId(id);
     setDetailLoading(true);
+    setLogsData(null);
     try {
       const full = await getCampaign(id);
       setDetail(full);
@@ -41,6 +46,18 @@ export default function PastCampaigns({ refreshKey }) {
       setDetail({ error: err.message });
     } finally {
       setDetailLoading(false);
+    }
+  }
+
+  async function loadLogs(campaignId) {
+    setLogsLoading(true);
+    try {
+      const data = await getCampaignLogs(campaignId);
+      setLogsData(data);
+    } catch (err) {
+      alert(`Failed to load logs: ${err.message}`);
+    } finally {
+      setLogsLoading(false);
     }
   }
 
@@ -187,6 +204,56 @@ export default function PastCampaigns({ refreshKey }) {
                                 </table>
                               </div>
                             )}
+
+                            {/* LOGS SECTION */}
+                            <div style={{ marginTop: '1rem' }}>
+                              {!logsData && (
+                                <button
+                                  onClick={() => loadLogs(c._id)}
+                                  disabled={logsLoading}
+                                  style={{ padding: '6px 12px', background: '#6c757d', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+                                >
+                                  {logsLoading ? 'Loading logs...' : 'Load Message Logs'}
+                                </button>
+                              )}
+                              
+                              {logsData && (
+                                <div className="logs-box" style={{ marginTop: '1rem', background: '#f8f9fa', padding: '1rem', borderRadius: '4px', maxHeight: '400px', overflowY: 'auto' }}>
+                                  <strong style={{ display: 'block', marginBottom: '0.5rem' }}>Message Logs ({logsData.length}):</strong>
+                                  {logsData.length === 0 ? (
+                                    <p style={{ fontSize: '0.9rem', color: '#666' }}>No logs found for this campaign yet.</p>
+                                  ) : (
+                                    <table style={{ width: '100%', fontSize: '0.85rem', background: '#fff', borderCollapse: 'collapse' }}>
+                                      <thead>
+                                        <tr>
+                                          <th style={{ padding: '6px', borderBottom: '1px solid #ddd', textAlign: 'left' }}>Time</th>
+                                          <th style={{ padding: '6px', borderBottom: '1px solid #ddd', textAlign: 'left' }}>Phone Number</th>
+                                          <th style={{ padding: '6px', borderBottom: '1px solid #ddd', textAlign: 'left' }}>Status</th>
+                                          <th style={{ padding: '6px', borderBottom: '1px solid #ddd', textAlign: 'left' }}>Device ID</th>
+                                          <th style={{ padding: '6px', borderBottom: '1px solid #ddd', textAlign: 'left' }}>Error Detail</th>
+                                        </tr>
+                                      </thead>
+                                      <tbody>
+                                        {logsData.map((log) => (
+                                          <tr key={log._id}>
+                                            <td style={{ padding: '6px', borderBottom: '1px solid #eee' }}>{new Date(log.createdAt).toLocaleTimeString()}</td>
+                                            <td style={{ padding: '6px', borderBottom: '1px solid #eee' }}>{log.phoneNumber}</td>
+                                            <td style={{ padding: '6px', borderBottom: '1px solid #eee' }}>
+                                              <span style={{ color: log.status === 'sent' ? 'green' : 'red', fontWeight: 'bold' }}>
+                                                {log.status.toUpperCase()}
+                                              </span>
+                                            </td>
+                                            <td style={{ padding: '6px', borderBottom: '1px solid #eee', color: '#666' }}>{log.deviceId.substring(0, 8)}...</td>
+                                            <td style={{ padding: '6px', borderBottom: '1px solid #eee', color: '#dc3545' }}>{log.error || '—'}</td>
+                                          </tr>
+                                        ))}
+                                      </tbody>
+                                    </table>
+                                  )}
+                                </div>
+                              )}
+                            </div>
+
                             <div style={{ marginTop: '1rem', borderTop: '1px solid #eee', paddingTop: '1rem', display: 'flex', gap: '10px' }}>
                               {(c.status === 'failed' || (c.status === 'completed' && c.stats?.failed > 0)) && (
                                 <button

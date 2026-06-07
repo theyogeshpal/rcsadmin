@@ -68,6 +68,10 @@ export async function getCampaign(id) {
   return apiFetch(`/api/campaigns/${id}`);
 }
 
+export async function getCampaignLogs(id) {
+  return apiFetch(`/api/campaigns/${id}/logs`);
+}
+
 export async function getActiveDevices() {
   return apiFetch('/api/devices/active');
 }
