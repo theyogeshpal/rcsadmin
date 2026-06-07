@@ -5,6 +5,7 @@ import ExcelUpload from './components/ExcelUpload';
 import CampaignForm from './components/CampaignForm';
 import DeviceStatus from './components/DeviceStatus';
 import PastCampaigns from './components/PastCampaigns';
+import Settings from './components/Settings';
 
 function Dashboard() {
   const { user, logout } = useAuth();
@@ -46,6 +47,13 @@ function Dashboard() {
         >
           Devices
         </button>
+        <button
+          type="button"
+          className={tab === 'settings' ? 'tab active' : 'tab'}
+          onClick={() => setTab('settings')}
+        >
+          Settings
+        </button>
       </nav>
 
       {tab === 'new' && (
@@ -56,6 +64,7 @@ function Dashboard() {
       )}
       {tab === 'past' && <PastCampaigns refreshKey={refreshKey} />}
       {tab === 'devices' && <DeviceStatus />}
+      {tab === 'settings' && <Settings />}
     </>
   );
 }
