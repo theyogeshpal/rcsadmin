@@ -1,6 +1,6 @@
 import { Fragment, useEffect, useState } from 'react';
-import { getCampaign, getCampaignLogs, listCampaigns, retryCampaign, deleteCampaign } from '../api/client';
-import { Trash2, RotateCcw, FileText, ChevronDown, ChevronUp } from 'lucide-react';
+import { getCampaign, getCampaignLogs, listCampaigns, retryCampaign, relaunchCampaign, deleteCampaign } from '../api/client';
+import { Trash2, RotateCcw, FileText, ChevronDown, ChevronUp, Play } from 'lucide-react';
 
 function formatDate(iso) {
   if (!iso) return '—';
@@ -74,6 +74,23 @@ export default function PastCampaigns({ refreshKey }) {
       setDetail(null);
     } catch (err) {
       alert(`Retry failed: ${err.message}`);
+    } finally {
+      setDetailLoading(false);
+    }
+  }
+
+  async function handleRelaunch(campaignId) {
+    if (!window.confirm('Are you sure you want to relaunch this ENTIRE campaign to all numbers again?')) return;
+    try {
+      setDetailLoading(true);
+      await relaunchCampaign(campaignId);
+      alert('Campaign relaunched successfully!');
+      const updated = await listCampaigns();
+      setCampaigns(updated);
+      setExpandedId(null);
+      setDetail(null);
+    } catch (err) {
+      alert(`Relaunch failed: ${err.message}`);
     } finally {
       setDetailLoading(false);
     }
@@ -156,6 +173,15 @@ export default function PastCampaigns({ refreshKey }) {
                         <RotateCcw size={16} /> Retry
                       </button>
                     )}
+
+                    <button 
+                      type="button"
+                      onClick={() => handleRelaunch(c._id)}
+                      style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: '#1c2e4a', color: '#6ba3ff' }}
+                      title="Relaunch Entire Campaign"
+                    >
+                      <Play size={16} /> Relaunch
+                    </button>
                     
                     <button 
                       type="button"

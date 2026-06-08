@@ -84,6 +84,10 @@ export async function retryCampaign(campaignId) {
   return apiFetch(`/api/campaigns/${campaignId}/retry`, { method: 'POST' });
 }
 
+export async function relaunchCampaign(campaignId) {
+  return apiFetch(`/api/campaigns/${campaignId}/relaunch`, { method: 'POST' });
+}
+
 export async function deleteCampaign(campaignId) {
   return apiFetch(`/api/campaigns/${campaignId}`, { method: 'DELETE' });
 }
