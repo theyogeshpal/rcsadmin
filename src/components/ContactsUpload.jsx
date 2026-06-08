@@ -10,10 +10,15 @@ export default function ContactsUpload() {
   const [error, setError] = useState('');
   
   const [contacts, setContacts] = useState([]);
+  const [selectedIds, setSelectedIds] = useState(new Set());
+  const [deleting, setDeleting] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
-    getContacts().then(setContacts).catch(err => console.error(err));
+    getContacts().then(data => {
+      setContacts(data);
+      setSelectedIds(new Set());
+    }).catch(err => console.error(err));
   }, [refreshKey]);
 
   async function handleSave() {
@@ -40,6 +45,39 @@ export default function ContactsUpload() {
       setError(err.message);
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function handleDeleteSelected() {
+    if (selectedIds.size === 0) return;
+    if (!window.confirm(`Are you sure you want to delete ${selectedIds.size} contacts?`)) return;
+
+    setDeleting(true);
+    try {
+      // Import this dynamically or make sure it's exported from client.js
+      const { deleteContacts } = await import('../api/client');
+      await deleteContacts(Array.from(selectedIds));
+      setRefreshKey(k => k + 1);
+    } catch (err) {
+      alert(err.message);
+    } finally {
+      setDeleting(false);
+    }
+  }
+
+  function toggleSelection(id) {
+    const newSet = new Set(selectedIds);
+    if (newSet.has(id)) newSet.delete(id);
+    else newSet.add(id);
+    setSelectedIds(newSet);
+  }
+
+  function toggleAll() {
+    const visibleContacts = contacts.slice(0, 15);
+    if (selectedIds.size === visibleContacts.length && visibleContacts.length > 0) {
+      setSelectedIds(new Set()); // Deselect all
+    } else {
+      setSelectedIds(new Set(visibleContacts.map(c => c._id))); // Select all
     }
   }
 
@@ -89,11 +127,31 @@ export default function ContactsUpload() {
 
         <div>
           <div className="card">
-            <h2>Recent Contacts</h2>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
+              <h2 style={{ margin: 0 }}>Recent Contacts</h2>
+              {selectedIds.size > 0 && (
+                <button 
+                  className="danger" 
+                  onClick={handleDeleteSelected}
+                  disabled={deleting}
+                  style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem' }}
+                >
+                  {deleting ? 'Deleting...' : `Delete Selected (${selectedIds.size})`}
+                </button>
+              )}
+            </div>
             <div className="table-wrap">
               <table>
                 <thead>
                   <tr>
+                    <th style={{ width: '40px' }}>
+                      <input 
+                        type="checkbox" 
+                        checked={contacts.length > 0 && selectedIds.size === Math.min(contacts.length, 15)}
+                        onChange={toggleAll}
+                        style={{ cursor: 'pointer' }}
+                      />
+                    </th>
                     <th>Phone Number</th>
                     <th>Category</th>
                     <th>Added On</th>
@@ -107,6 +165,14 @@ export default function ContactsUpload() {
                   ) : (
                     contacts.slice(0, 15).map(c => (
                       <tr key={c._id}>
+                        <td>
+                          <input 
+                            type="checkbox" 
+                            checked={selectedIds.has(c._id)}
+                            onChange={() => toggleSelection(c._id)}
+                            style={{ cursor: 'pointer' }}
+                          />
+                        </td>
                         <td>{c.phoneNumber}</td>
                         <td><span className="status-badge" style={{ background: '#2d3142', color: '#e8eaed' }}>{c.category}</span></td>
                         <td>{new Date(c.createdAt).toLocaleDateString()}</td>

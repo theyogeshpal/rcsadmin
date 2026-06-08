@@ -103,6 +103,13 @@ export async function getContacts() {
   return apiFetch('/api/contacts');
 }
 
+export async function deleteContacts(ids) {
+  return apiFetch('/api/contacts/delete-bulk', {
+    method: 'POST',
+    body: JSON.stringify({ ids }),
+  });
+}
+
 export async function getTemplates() {
   return apiFetch('/api/templates');
 }
