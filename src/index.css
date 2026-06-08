@@ -147,6 +147,11 @@ body {
   border-top: 1px solid var(--border);
 }
 
+.user-details{
+  display: flex;
+  flex-direction: column;
+}
+
 .user-info {
   display: flex;
   align-items: center;
