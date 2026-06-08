@@ -1,75 +1,14 @@
-import { useState } from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import Login from './components/Login';
-import ExcelUpload from './components/ExcelUpload';
-import CampaignForm from './components/CampaignForm';
+import Layout from './components/Layout';
+import Dashboard from './components/Dashboard';
+import ContactsUpload from './components/ContactsUpload';
+import Templates from './components/Templates';
 import DeviceStatus from './components/DeviceStatus';
-import PastCampaigns from './components/PastCampaigns';
 import Settings from './components/Settings';
 
-function Dashboard() {
-  const { user, logout } = useAuth();
-  const [numbers, setNumbers] = useState([]);
-  const [refreshKey, setRefreshKey] = useState(0);
-  const [tab, setTab] = useState('new');
-
-  return (
-    <>
-      <header className="app-header">
-        <div>
-          <h1>RCS Campaign Admin</h1>
-          <p className="subtitle">Logged in as {user?.username}</p>
-        </div>
-        <button type="button" className="secondary" onClick={logout}>
-          Logout
-        </button>
-      </header>
-
-      <nav className="tabs">
-        <button
-          type="button"
-          className={tab === 'new' ? 'tab active' : 'tab'}
-          onClick={() => setTab('new')}
-        >
-          New campaign
-        </button>
-        <button
-          type="button"
-          className={tab === 'past' ? 'tab active' : 'tab'}
-          onClick={() => setTab('past')}
-        >
-          Past campaigns
-        </button>
-        <button
-          type="button"
-          className={tab === 'devices' ? 'tab active' : 'tab'}
-          onClick={() => setTab('devices')}
-        >
-          Devices
-        </button>
-        <button
-          type="button"
-          className={tab === 'settings' ? 'tab active' : 'tab'}
-          onClick={() => setTab('settings')}
-        >
-          Settings
-        </button>
-      </nav>
-
-      {tab === 'new' && (
-        <>
-          <ExcelUpload onNumbersParsed={setNumbers} />
-          <CampaignForm numbers={numbers} onSubmitted={() => setRefreshKey((k) => k + 1)} />
-        </>
-      )}
-      {tab === 'past' && <PastCampaigns refreshKey={refreshKey} />}
-      {tab === 'devices' && <DeviceStatus />}
-      {tab === 'settings' && <Settings />}
-    </>
-  );
-}
-
-function AppRoot() {
+function ProtectedRoute({ children }) {
   const { isAuthenticated, loading } = useAuth();
 
   if (loading) {
@@ -80,14 +19,49 @@ function AppRoot() {
     );
   }
 
-  if (!isAuthenticated) return <Login />;
-  return <Dashboard />;
+  if (!isAuthenticated) return <Navigate to="/login" replace />;
+  return children;
+}
+
+function AppRoutes() {
+  const { isAuthenticated, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="login-wrap">
+        <p style={{ color: '#9aa0a6' }}>Loading…</p>
+      </div>
+    );
+  }
+
+  return (
+    <Routes>
+      <Route path="/login" element={!isAuthenticated ? <Login /> : <Navigate to="/" replace />} />
+      <Route
+        path="/"
+        element={
+          <ProtectedRoute>
+            <Layout />
+          </ProtectedRoute>
+        }
+      >
+        <Route index element={<Dashboard />} />
+        <Route path="contacts" element={<ContactsUpload />} />
+        <Route path="templates" element={<Templates />} />
+        <Route path="past-campaigns" element={<Navigate to="/" replace />} />
+        <Route path="devices" element={<DeviceStatus />} />
+        <Route path="settings" element={<Settings />} />
+      </Route>
+    </Routes>
+  );
 }
 
 export default function App() {
   return (
     <AuthProvider>
-      <AppRoot />
+      <BrowserRouter>
+        <AppRoutes />
+      </BrowserRouter>
     </AuthProvider>
   );
 }

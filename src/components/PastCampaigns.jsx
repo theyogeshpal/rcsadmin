@@ -1,5 +1,6 @@
 import { Fragment, useEffect, useState } from 'react';
 import { getCampaign, getCampaignLogs, listCampaigns, retryCampaign, deleteCampaign } from '../api/client';
+import { Trash2, RotateCcw, FileText, ChevronDown, ChevronUp } from 'lucide-react';
 
 function formatDate(iso) {
   if (!iso) return '—';
@@ -67,7 +68,6 @@ export default function PastCampaigns({ refreshKey }) {
       setDetailLoading(true);
       await retryCampaign(campaignId);
       alert('Retry triggered successfully!');
-      // Refresh the list
       const updated = await listCampaigns();
       setCampaigns(updated);
       setExpandedId(null);
@@ -80,11 +80,10 @@ export default function PastCampaigns({ refreshKey }) {
   }
 
   async function handleDelete(campaignId) {
-    if (!window.confirm('Are you sure you want to PERMANENTLY delete this campaign and all its history?')) return;
+    if (!window.confirm('Are you sure you want to PERMANENTLY delete this campaign?')) return;
     try {
       setDetailLoading(true);
       await deleteCampaign(campaignId);
-      // Refresh the list
       const updated = await listCampaigns();
       setCampaigns(updated);
       setExpandedId(null);
@@ -98,182 +97,181 @@ export default function PastCampaigns({ refreshKey }) {
 
   return (
     <div className="card">
-      <h2>Past campaigns</h2>
+      <h2>Campaign History</h2>
       <p style={{ color: '#9aa0a6', fontSize: '0.9rem', marginTop: 0 }}>
-        All previous campaigns — click a row for full details.
+        Your recently launched campaigns.
       </p>
+      
       {error && <div className="error">{error}</div>}
       {loading && <p style={{ color: '#9aa0a6' }}>Loading…</p>}
+      
       {!loading && campaigns.length === 0 && (
-        <p style={{ color: '#9aa0a6' }}>No campaigns yet. Create your first campaign above.</p>
+        <p style={{ color: '#9aa0a6' }}>No campaigns yet. Launch your first campaign to the left.</p>
       )}
+      
       {!loading && campaigns.length > 0 && (
-        <div className="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Date</th>
-                <th>Name</th>
-                <th>Status</th>
-                <th>Total</th>
-                <th>Sent</th>
-                <th>Failed</th>
-                <th>Pending</th>
-              </tr>
-            </thead>
-            <tbody>
-              {campaigns.map((c) => (
-                <Fragment key={c._id}>
-                  <tr
-                    className={`campaign-row ${expandedId === c._id ? 'expanded' : ''}`}
-                    onClick={() => toggleExpand(c._id)}
-                  >
-                    <td>{formatDate(c.createdAt)}</td>
-                    <td>{c.name}</td>
-                    <td>
-                      <span className={statusClass(c.status)}>{c.status}</span>
-                    </td>
-                    <td>{c.stats?.total ?? '—'}</td>
-                    <td>{c.stats?.sent ?? 0}</td>
-                    <td>{c.stats?.failed ?? 0}</td>
-                    <td>{c.stats?.pending ?? 0}</td>
-                  </tr>
-                  {expandedId === c._id && (
-                    <tr className="detail-row">
-                      <td colSpan={7}>
-                        {detailLoading && <span style={{ color: '#9aa0a6' }}>Loading details…</span>}
-                        {!detailLoading && detail?.error && (
-                          <div className="error">{detail.error}</div>
-                        )}
-                        {!detailLoading && detail && !detail.error && (
-                          <div className="campaign-detail">
-                            <p>
-                              <strong>Message:</strong> {detail.text}
-                            </p>
-                            {detail.error && (
-                              <p className="error">
-                                <strong>Error:</strong> {detail.error}
-                              </p>
-                            )}
-                            <p>
-                              <strong>Created by:</strong> {detail.createdBy || 'admin'} ·{' '}
-                              <strong>Updated:</strong> {formatDate(detail.updatedAt)}
-                            </p>
-                            <p>
-                              <strong>Retries:</strong> up to 3 attempts per failed number (8s apart)
-                            </p>
-                            <p>
-                              <strong>Total numbers:</strong> {detail.numbers?.length ?? 0}
-                            </p>
-                            {detail.assignments?.length > 0 && (
-                              <div className="assignments-box" style={{ marginTop: '1rem', background: '#f8f9fa', padding: '1rem', borderRadius: '4px' }}>
-                                <strong style={{ display: 'block', marginBottom: '0.5rem' }}>Device Distribution:</strong>
-                                <table style={{ width: '100%', fontSize: '0.9rem', background: '#000000' }}>
-                                  <thead>
-                                    <tr>
-                                      <th style={{ padding: '8px', borderBottom: '1px solid #000000' }}>Device ID</th>
-                                      <th style={{ padding: '8px', borderBottom: '1px solid #000000' }}>Assigned Count</th>
-                                      <th style={{ padding: '8px', borderBottom: '1px solid #000000' }}>Status / Started At</th>
-                                    </tr>
-                                  </thead>
-                                  <tbody>
-                                    {detail.assignments.map((a) => (
-                                      <tr key={a.deviceId}>
-                                        <td style={{ padding: '8px', borderBottom: '1px solid #000000' }}>{a.deviceId}</td>
-                                        <td style={{ padding: '8px', borderBottom: '1px solid #000000' }}>{a.numbers?.length || 0} numbers</td>
-                                        <td style={{ padding: '8px', borderBottom: '1px solid #000000' }}>
-                                          {a.dispatchedAt ? (
-                                            <span style={{ color: '#28a745', fontWeight: 'bold' }}>Started: {formatDate(a.dispatchedAt)}</span>
-                                          ) : (
-                                            <span style={{ color: '#ffc107', fontWeight: 'bold' }}>Pending...</span>
-                                          )}
-                                        </td>
-                                      </tr>
-                                    ))}
-                                  </tbody>
-                                </table>
-                              </div>
-                            )}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          {campaigns.map((c) => {
+            const isFailed = c.status === 'failed' || (c.status === 'completed' && c.stats?.failed > 0);
+            
+            return (
+              <div key={c._id} style={{ background: '#0f1117', border: '1px solid #2d3142', borderRadius: '10px', overflow: 'hidden' }}>
+                {/* Card Header & Summary */}
+                <div style={{ padding: '1.25rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
+                    <div>
+                      <h3 style={{ margin: '0 0 0.25rem 0', color: '#e8eaed', fontSize: '1.1rem' }}>{c.name}</h3>
+                      <div style={{ fontSize: '0.8rem', color: '#9aa0a6' }}>{formatDate(c.createdAt)}</div>
+                    </div>
+                    <span className={statusClass(c.status)}>{c.status}</span>
+                  </div>
+                  
+                  <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', marginBottom: '1rem' }}>
+                    <div className="stat">Total: <strong>{c.stats?.total ?? '—'}</strong></div>
+                    <div className="stat" style={{ color: '#81c995' }}>Sent: <strong>{c.stats?.sent ?? 0}</strong></div>
+                    <div className="stat" style={{ color: '#f28b82' }}>Failed: <strong>{c.stats?.failed ?? 0}</strong></div>
+                    <div className="stat" style={{ color: '#fdd663' }}>Pending: <strong>{c.stats?.pending ?? 0}</strong></div>
+                  </div>
 
-                            {/* LOGS SECTION */}
+                  {/* Quick Actions */}
+                  <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', borderTop: '1px solid #2d3142', paddingTop: '1rem' }}>
+                    <button 
+                      type="button"
+                      className="secondary"
+                      onClick={() => toggleExpand(c._id)}
+                      style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flex: 1, justifyContent: 'center' }}
+                    >
+                      <FileText size={16} />
+                      {expandedId === c._id ? 'Hide Details' : 'View Details'}
+                      {expandedId === c._id ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                    </button>
+                    
+                    {isFailed && (
+                      <button 
+                        type="button"
+                        onClick={() => handleRetry(c._id)}
+                        style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: '#3a3520', color: '#fdd663' }}
+                        title="Retry Failed Numbers"
+                      >
+                        <RotateCcw size={16} /> Retry
+                      </button>
+                    )}
+                    
+                    <button 
+                      type="button"
+                      onClick={() => handleDelete(c._id)}
+                      style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'transparent', border: '1px solid #3c2020', color: '#f28b82' }}
+                    >
+                      <Trash2 size={16} /> Delete
+                    </button>
+                  </div>
+                </div>
+
+                {/* Expanded Details */}
+                {expandedId === c._id && (
+                  <div style={{ background: '#151821', padding: '1.25rem', borderTop: '1px solid #2d3142' }}>
+                    {detailLoading && <span style={{ color: '#9aa0a6' }}>Loading details…</span>}
+                    
+                    {!detailLoading && detail?.error && (
+                      <div className="error">{detail.error}</div>
+                    )}
+                    
+                    {!detailLoading && detail && !detail.error && (
+                      <div className="campaign-detail">
+                        <div style={{ marginBottom: '1rem', padding: '1rem', background: '#0b0c10', borderRadius: '8px' }}>
+                          <strong style={{ display: 'block', color: '#9aa0a6', marginBottom: '0.5rem' }}>Message Content:</strong>
+                          <div style={{ whiteSpace: 'pre-wrap', fontSize: '0.95rem' }}>{detail.text}</div>
+                        </div>
+
+                        {detail.assignments?.length > 0 && (
+                          <div style={{ marginBottom: '1rem' }}>
+                            <strong style={{ display: 'block', color: '#9aa0a6', marginBottom: '0.5rem' }}>Device Distribution:</strong>
+                            <div className="table-wrap">
+                              <table style={{ background: '#0b0c10' }}>
+                                <thead>
+                                  <tr>
+                                    <th>Device ID</th>
+                                    <th>Assigned</th>
+                                    <th>Status</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  {detail.assignments.map((a) => (
+                                    <tr key={a.deviceId}>
+                                      <td style={{ color: '#9aa0a6' }}>{a.deviceId.substring(0, 8)}...</td>
+                                      <td>{a.numbers?.length || 0} numbers</td>
+                                      <td>
+                                        {a.dispatchedAt ? (
+                                          <span style={{ color: '#81c995' }}>Started: {new Date(a.dispatchedAt).toLocaleTimeString()}</span>
+                                        ) : (
+                                          <span style={{ color: '#fdd663' }}>Pending...</span>
+                                        )}
+                                      </td>
+                                    </tr>
+                                  ))}
+                                </tbody>
+                              </table>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Logs Section */}
+                        <div style={{ marginTop: '1rem' }}>
+                          {!logsData && (
+                            <button
+                              type="button"
+                              className="secondary"
+                              onClick={() => loadLogs(c._id)}
+                              disabled={logsLoading}
+                              style={{ width: '100%' }}
+                            >
+                              {logsLoading ? 'Loading logs...' : 'Load Delivery Logs'}
+                            </button>
+                          )}
+                          
+                          {logsData && (
                             <div style={{ marginTop: '1rem' }}>
-                              {!logsData && (
-                                <button
-                                  onClick={() => loadLogs(c._id)}
-                                  disabled={logsLoading}
-                                  style={{ padding: '6px 12px', background: '#6c757d', color: '#000000', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
-                                >
-                                  {logsLoading ? 'Loading logs...' : 'Load Message Logs'}
-                                </button>
-                              )}
-                              
-                              {logsData && (
-                                <div className="logs-box" style={{ marginTop: '1rem', background: '#f8f9fa', padding: '1rem', borderRadius: '4px', maxHeight: '400px', overflowY: 'auto' }}>
-                                  <strong style={{ display: 'block', marginBottom: '0.5rem' }}>Message Logs ({logsData.length}):</strong>
-                                  {logsData.length === 0 ? (
-                                    <p style={{ fontSize: '0.9rem', color: '#666' }}>No logs found for this campaign yet.</p>
-                                  ) : (
-                                    <table style={{ width: '100%', fontSize: '0.85rem', background: '#fff', borderCollapse: 'collapse' }}>
-                                      <thead>
-                                        <tr>
-                                          <th style={{ padding: '6px', borderBottom: '1px solid #ddd', textAlign: 'left' }}>Time</th>
-                                          <th style={{ padding: '6px', borderBottom: '1px solid #ddd', textAlign: 'left' }}>Phone Number</th>
-                                          <th style={{ padding: '6px', borderBottom: '1px solid #ddd', textAlign: 'left' }}>Status</th>
-                                          <th style={{ padding: '6px', borderBottom: '1px solid #ddd', textAlign: 'left' }}>Device ID</th>
-                                          <th style={{ padding: '6px', borderBottom: '1px solid #ddd', textAlign: 'left' }}>Error Detail</th>
+                              <strong style={{ display: 'block', color: '#9aa0a6', marginBottom: '0.5rem' }}>Delivery Logs ({logsData.length}):</strong>
+                              {logsData.length === 0 ? (
+                                <p style={{ fontSize: '0.9rem', color: '#666' }}>No logs found for this campaign yet.</p>
+                              ) : (
+                                <div className="table-wrap" style={{ maxHeight: '300px', overflowY: 'auto' }}>
+                                  <table style={{ background: '#0b0c10' }}>
+                                    <thead style={{ position: 'sticky', top: 0, background: '#151821' }}>
+                                      <tr>
+                                        <th>Time</th>
+                                        <th>Phone Number</th>
+                                        <th>Status</th>
+                                        <th>Error</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                      {logsData.map((log) => (
+                                        <tr key={log._id}>
+                                          <td>{new Date(log.createdAt).toLocaleTimeString()}</td>
+                                          <td>{log.phoneNumber}</td>
+                                          <td>
+                                            <span style={{ color: log.status === 'sent' ? '#81c995' : '#f28b82' }}>
+                                              {log.status.toUpperCase()}
+                                            </span>
+                                          </td>
+                                          <td style={{ color: '#f28b82' }}>{log.error || '—'}</td>
                                         </tr>
-                                      </thead>
-                                      <tbody>
-                                        {logsData.map((log) => (
-                                          <tr key={log._id}>
-                                            <td style={{ padding: '6px', borderBottom: '1px solid #eee' }}>{new Date(log.createdAt).toLocaleTimeString()}</td>
-                                            <td style={{ padding: '6px', borderBottom: '1px solid #eee' }}>{log.phoneNumber}</td>
-                                            <td style={{ padding: '6px', borderBottom: '1px solid #eee' }}>
-                                              <span style={{ color: log.status === 'sent' ? 'green' : 'red', fontWeight: 'bold' }}>
-                                                {log.status.toUpperCase()}
-                                              </span>
-                                            </td>
-                                            <td style={{ padding: '6px', borderBottom: '1px solid #eee', color: '#666' }}>{log.deviceId.substring(0, 8)}...</td>
-                                            <td style={{ padding: '6px', borderBottom: '1px solid #eee', color: '#dc3545' }}>{log.error || '—'}</td>
-                                          </tr>
-                                        ))}
-                                      </tbody>
-                                    </table>
-                                  )}
+                                      ))}
+                                    </tbody>
+                                  </table>
                                 </div>
                               )}
                             </div>
-
-                            <div style={{ marginTop: '1rem', borderTop: '1px solid #eee', paddingTop: '1rem', display: 'flex', gap: '10px' }}>
-                              {(c.status === 'failed' || (c.status === 'completed' && c.stats?.failed > 0)) && (
-                                <button
-                                  onClick={() => handleRetry(c._id)}
-                                  style={{ padding: '8px 16px', background: '#007bff', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}
-                                >
-                                  Retry Failed Campaign
-                                </button>
-                              )}
-                              <button
-                                onClick={() => handleDelete(c._id)}
-                                style={{ padding: '8px 16px', background: '#dc3545', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}
-                              >
-                                Delete Campaign
-                              </button>
-                            </div>
-                            {(c.status === 'failed' || (c.status === 'completed' && c.stats?.failed > 0)) && (
-                              <p style={{ fontSize: '0.8rem', color: '#666', marginTop: '4px' }}>
-                                {c.status === 'failed' ? 'Retry will restart the entire campaign.' : 'Retry will create a new campaign containing only the failed numbers.'}
-                              </p>
-                            )}
-                          </div>
-                        )}
-                      </td>
-                    </tr>
-                  )}
-                </Fragment>
-              ))}
-            </tbody>
-          </table>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
       )}
     </div>

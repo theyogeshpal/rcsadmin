@@ -37,12 +37,27 @@ export default function ExcelUpload({ onNumbersParsed }) {
         First column or column named phone/mobile/number will be parsed into an array.
       </p>
       <div className="upload-actions">
-        <input
-          ref={inputRef}
-          type="file"
-          accept=".xlsx,.xls"
-          onChange={handleFile}
-        />
+        <label 
+          style={{ 
+            background: '#4f8cff', 
+            color: '#fff', 
+            padding: '0.65rem 1.25rem', 
+            borderRadius: '8px', 
+            cursor: 'pointer',
+            fontWeight: '600',
+            textAlign: 'center',
+            flex: '1 1 200px'
+          }}
+        >
+          <input
+            ref={inputRef}
+            type="file"
+            accept=".xlsx,.xls"
+            onChange={handleFile}
+            style={{ display: 'none' }}
+          />
+          Choose Excel File
+        </label>
         <button
           type="button"
           className="secondary"

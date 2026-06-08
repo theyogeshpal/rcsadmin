@@ -87,3 +87,33 @@ export async function retryCampaign(campaignId) {
 export async function deleteCampaign(campaignId) {
   return apiFetch(`/api/campaigns/${campaignId}`, { method: 'DELETE' });
 }
+
+export async function uploadContacts(numbers, category) {
+  return apiFetch('/api/contacts/upload', {
+    method: 'POST',
+    body: JSON.stringify({ numbers, category }),
+  });
+}
+
+export async function getCategories() {
+  return apiFetch('/api/contacts/categories');
+}
+
+export async function getContacts() {
+  return apiFetch('/api/contacts');
+}
+
+export async function getTemplates() {
+  return apiFetch('/api/templates');
+}
+
+export async function createTemplate(data) {
+  return apiFetch('/api/templates', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
+export async function deleteTemplate(id) {
+  return apiFetch(`/api/templates/${id}`, { method: 'DELETE' });
+}

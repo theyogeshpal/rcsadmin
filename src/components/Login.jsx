@@ -31,13 +31,14 @@ export default function Login() {
           Sign in to manage campaigns
         </p>
         <form onSubmit={handleSubmit}>
-          <label>Username</label>
+          <label>Email</label>
           <input
-            type="text"
+            type="email"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
-            autoComplete="username"
+            placeholder="admin@rcs.com"
             required
+            autoComplete="email"
           />
           <label>Password</label>
           <input
