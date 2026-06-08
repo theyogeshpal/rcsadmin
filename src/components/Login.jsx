@@ -59,7 +59,7 @@ export default function Login() {
             Welcome Back
           </h1>
           <p style={{ color: '#8b949e', fontSize: '0.9rem', margin: 0 }}>
-            Sign in to RCS Admin Panel
+            Sign in to RCS Messenger
           </p>
         </div>
 

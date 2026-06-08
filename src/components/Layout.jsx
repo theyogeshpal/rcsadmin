@@ -26,7 +26,7 @@ export default function Layout() {
           <div className="logo-icon" style={{ width: 28, height: 28, borderRadius: 6 }}>
             <span style={{ color: '#fff', fontWeight: 'bold', fontSize: '1rem' }}>V</span>
           </div>
-          <span style={{ fontWeight: 600 }}>RCS Admin</span>
+          <span style={{ fontWeight: 600 }}>RCS Messenger</span>
         </div>
         <button className="hamburger-btn" onClick={() => setIsMobileOpen(true)}>
           <Menu size={24} />
@@ -43,7 +43,7 @@ export default function Layout() {
           <div className="logo-icon">
             <Send size={24} color="#fff" />
           </div>
-          <h2>RCS Admin</h2>
+          <h2>RCS Messenger</h2>
         </div>
 
         <nav className="sidebar-nav">
