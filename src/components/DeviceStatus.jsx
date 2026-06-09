@@ -47,6 +47,7 @@ export default function DeviceStatus() {
         <table style={{ marginTop: '1rem' }}>
           <thead>
             <tr>
+              <th>Phone Numbers</th>
               <th>Device ID</th>
               <th>Label</th>
               <th>Last heartbeat</th>
@@ -57,7 +58,10 @@ export default function DeviceStatus() {
           <tbody>
             {data.devices.map((d) => (
               <tr key={d.deviceId}>
-                <td>{d.deviceId}</td>
+                <td style={{ fontWeight: 'bold', color: '#6ba3ff' }}>
+                  {d.phoneNumbers && d.phoneNumbers.length > 0 ? d.phoneNumbers.join(' / ') : 'N/A'}
+                </td>
+                <td style={{ color: '#9aa0a6', fontSize: '0.8rem' }}>{d.deviceId.substring(0, 8)}...</td>
                 <td>{d.label || '—'}</td>
                 <td>{d.lastHeartbeat ? new Date(d.lastHeartbeat).toLocaleString() : '—'}</td>
                 <td>

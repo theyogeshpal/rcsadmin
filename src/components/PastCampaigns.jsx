@@ -216,6 +216,7 @@ export default function PastCampaigns({ refreshKey }) {
                               <table style={{ background: '#0b0c10' }}>
                                 <thead>
                                   <tr>
+                                    <th>Phone Numbers</th>
                                     <th>Device ID</th>
                                     <th>Assigned</th>
                                     <th>Status</th>
@@ -224,7 +225,10 @@ export default function PastCampaigns({ refreshKey }) {
                                 <tbody>
                                   {detail.assignments.map((a) => (
                                     <tr key={a.deviceId}>
-                                      <td style={{ color: '#9aa0a6' }}>{a.deviceId.substring(0, 8)}...</td>
+                                      <td style={{ fontWeight: 'bold', color: '#6ba3ff' }}>
+                                        {a.phoneNumbers && a.phoneNumbers.length > 0 ? a.phoneNumbers.join(' / ') : 'N/A'}
+                                      </td>
+                                      <td style={{ color: '#9aa0a6', fontSize: '0.8rem' }}>{a.deviceId.substring(0, 8)}...</td>
                                       <td>{a.numbers?.length || 0} numbers</td>
                                       <td>
                                         {a.dispatchedAt ? (
