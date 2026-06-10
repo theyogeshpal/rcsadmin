@@ -10,16 +10,22 @@ export default function ContactsUpload() {
   const [error, setError] = useState('');
   
   const [contacts, setContacts] = useState([]);
+  const [totalPages, setTotalPages] = useState(1);
+  const [page, setPage] = useState(1);
+  const [totalContacts, setTotalContacts] = useState(0);
+  
   const [selectedIds, setSelectedIds] = useState(new Set());
   const [deleting, setDeleting] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
-    getContacts().then(data => {
-      setContacts(data);
+    getContacts(page, 15).then(data => {
+      setContacts(data.contacts || []);
+      setTotalPages(data.totalPages || 1);
+      setTotalContacts(data.total || 0);
       setSelectedIds(new Set());
     }).catch(err => console.error(err));
-  }, [refreshKey]);
+  }, [refreshKey, page]);
 
   async function handleSave() {
     if (!numbers.length) {
@@ -73,11 +79,10 @@ export default function ContactsUpload() {
   }
 
   function toggleAll() {
-    const visibleContacts = contacts.slice(0, 15);
-    if (selectedIds.size === visibleContacts.length && visibleContacts.length > 0) {
+    if (selectedIds.size === contacts.length && contacts.length > 0) {
       setSelectedIds(new Set()); // Deselect all
     } else {
-      setSelectedIds(new Set(visibleContacts.map(c => c._id))); // Select all
+      setSelectedIds(new Set(contacts.map(c => c._id))); // Select all on this page
     }
   }
 
@@ -160,10 +165,10 @@ export default function ContactsUpload() {
                 <tbody>
                   {contacts.length === 0 ? (
                     <tr>
-                      <td colSpan="3" style={{ textAlign: 'center', color: '#9aa0a6' }}>No contacts found</td>
+                      <td colSpan="4" style={{ textAlign: 'center', color: '#9aa0a6' }}>No contacts found</td>
                     </tr>
                   ) : (
-                    contacts.slice(0, 15).map(c => (
+                    contacts.map(c => (
                       <tr key={c._id}>
                         <td>
                           <input 
@@ -182,7 +187,31 @@ export default function ContactsUpload() {
                 </tbody>
               </table>
             </div>
-            {contacts.length > 15 && <p style={{ fontSize: '0.85rem', color: '#9aa0a6', textAlign: 'center', marginTop: '1rem' }}>Showing latest 15 contacts</p>}
+            
+            {/* Pagination Controls */}
+            {totalPages > 1 && (
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '1.5rem', background: '#0f1117', padding: '1rem', borderRadius: '8px', border: '1px solid #2d3142' }}>
+                <button 
+                  onClick={() => setPage(p => Math.max(1, p - 1))}
+                  disabled={page === 1}
+                  className="secondary"
+                  style={{ padding: '0.4rem 1rem' }}
+                >
+                  Previous
+                </button>
+                <div style={{ color: '#9aa0a6', fontSize: '0.9rem' }}>
+                  Page <strong style={{ color: '#e8eaed' }}>{page}</strong> of <strong>{totalPages}</strong> ({totalContacts} total)
+                </div>
+                <button 
+                  onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                  disabled={page === totalPages}
+                  className="secondary"
+                  style={{ padding: '0.4rem 1rem' }}
+                >
+                  Next
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>

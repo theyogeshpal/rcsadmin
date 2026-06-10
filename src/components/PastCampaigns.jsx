@@ -1,6 +1,7 @@
 import { Fragment, useEffect, useState } from 'react';
 import { getCampaign, getCampaignLogs, listCampaigns, retryCampaign, relaunchCampaign, deleteCampaign } from '../api/client';
 import { Trash2, RotateCcw, FileText, ChevronDown, ChevronUp, Play } from 'lucide-react';
+import Loader from './Loader';
 
 function formatDate(iso) {
   if (!iso) return '—';
@@ -22,12 +23,16 @@ export default function PastCampaigns({ refreshKey }) {
   const [logsData, setLogsData] = useState(null);
   const [logsLoading, setLogsLoading] = useState(false);
 
-  useEffect(() => {
+  const fetchCampaigns = () => {
     setLoading(true);
     listCampaigns()
       .then(setCampaigns)
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    fetchCampaigns();
   }, [refreshKey]);
 
   async function toggleExpand(id) {
@@ -114,13 +119,24 @@ export default function PastCampaigns({ refreshKey }) {
 
   return (
     <div className="card">
-      <h2>Campaign History</h2>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <h2 style={{ margin: 0 }}>Campaign History</h2>
+        <button 
+          type="button"
+          onClick={fetchCampaigns} 
+          disabled={loading}
+          style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: '#1c2e4a', color: '#6ba3ff', border: 'none', padding: '0.4rem 0.8rem', borderRadius: '6px', cursor: 'pointer' }}
+        >
+          <RotateCcw size={16} />
+          {loading ? 'Refreshing...' : 'Refresh'}
+        </button>
+      </div>
       <p style={{ color: '#9aa0a6', fontSize: '0.9rem', marginTop: 0 }}>
         Your recently launched campaigns.
       </p>
       
       {error && <div className="error">{error}</div>}
-      {loading && <p style={{ color: '#9aa0a6' }}>Loading…</p>}
+      {loading && <Loader text="Loading campaigns..." />}
       
       {!loading && campaigns.length === 0 && (
         <p style={{ color: '#9aa0a6' }}>No campaigns yet. Launch your first campaign to the left.</p>

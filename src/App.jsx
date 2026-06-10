@@ -8,6 +8,7 @@ import ContactsUpload from './components/ContactsUpload';
 import Templates from './components/Templates';
 import DeviceStatus from './components/DeviceStatus';
 import Settings from './components/Settings';
+import Loader from './components/Loader';
 
 function ProtectedRoute({ children }) {
   const { isAuthenticated, loading } = useAuth();
@@ -15,7 +16,7 @@ function ProtectedRoute({ children }) {
   if (loading) {
     return (
       <div className="login-wrap">
-        <p style={{ color: '#9aa0a6' }}>Loading…</p>
+        <Loader text="Authenticating..." />
       </div>
     );
   }
@@ -30,7 +31,7 @@ function AppRoutes() {
   if (loading) {
     return (
       <div className="login-wrap">
-        <p style={{ color: '#9aa0a6' }}>Loading…</p>
+        <Loader text="Authenticating..." />
       </div>
     );
   }

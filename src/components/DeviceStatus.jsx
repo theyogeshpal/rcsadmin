@@ -1,18 +1,27 @@
 import { useEffect, useState } from 'react';
 import { getActiveDevices, deleteDevice } from '../api/client';
+import { Trash2, Phone, Battery, Wifi, Clock, ArrowRightLeft } from 'lucide-react';
+import Loader from './Loader';
 
 export default function DeviceStatus() {
   const [data, setData] = useState({ devices: [], workloadMap: {} });
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let cancelled = false;
     async function load() {
       try {
         const res = await getActiveDevices();
-        if (!cancelled) setData(res);
+        if (!cancelled) {
+            setData(res);
+            setLoading(false);
+        }
       } catch (err) {
-        if (!cancelled) setError(err.message);
+        if (!cancelled) {
+            setError(err.message);
+            setLoading(false);
+        }
       }
     }
     load();
@@ -35,6 +44,8 @@ export default function DeviceStatus() {
       alert(err.message);
     }
   }
+
+  if (loading) return <Loader text="Fetching active devices..." />;
 
   return (
     <div className="card">

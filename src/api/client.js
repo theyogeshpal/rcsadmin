@@ -109,8 +109,8 @@ export async function getCategories() {
   return apiFetch('/api/contacts/categories');
 }
 
-export async function getContacts() {
-  return apiFetch('/api/contacts');
+export async function getContacts(page = 1, limit = 15) {
+  return apiFetch(`/api/contacts?page=${page}&limit=${limit}`);
 }
 
 export async function deleteContacts(ids) {

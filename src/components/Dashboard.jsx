@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { getStats } from '../api/client';
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, CartesianGrid } from 'recharts';
 import { Users, Send, AlertTriangle, MessageSquare } from 'lucide-react';
+import Loader from './Loader';
 
 const COLORS = ['#1a73e8', '#34a853', '#fbbc04', '#ea4335', '#9334e6', '#24c1e0'];
 
@@ -17,7 +18,7 @@ export default function Dashboard() {
       .finally(() => setLoading(false));
   }, []);
 
-  if (loading) return <div className="page-container"><p style={{ color: '#9aa0a6' }}>Loading Analytics...</p></div>;
+  if (loading) return <Loader text="Loading Analytics..." />;
   if (error) return <div className="page-container"><p className="error">{error}</p></div>;
   if (!stats) return null;
 

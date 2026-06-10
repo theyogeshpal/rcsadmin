@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { getCategories, getTemplates, createCampaign } from '../api/client';
 import PastCampaigns from './PastCampaigns';
+import Loader from './Loader';
 
 export default function Campaigns() {
   const [categories, setCategories] = useState([]);
