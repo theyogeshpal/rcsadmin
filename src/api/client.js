@@ -69,7 +69,13 @@ export async function getCampaign(id) {
 }
 
 export async function getCampaignLogs(id) {
-  return apiFetch(`/api/campaigns/${id}/logs`);
+  const res = await apiFetch(`/api/campaigns/${id}/logs`);
+  return res;
+}
+
+export async function getStats() {
+  const res = await apiFetch('/api/stats');
+  return res.data;
 }
 
 export async function getActiveDevices() {

@@ -57,6 +57,14 @@ export default function Layout() {
             <span>Dashboard</span>
           </NavLink>
           <NavLink
+            to="/campaigns"
+            className={({ isActive }) => (isActive ? 'nav-item active' : 'nav-item')}
+            onClick={closeMobile}
+          >
+            <Send size={20} />
+            <span>Campaigns</span>
+          </NavLink>
+          <NavLink
             to="/contacts"
             className={({ isActive }) => (isActive ? 'nav-item active' : 'nav-item')}
             onClick={closeMobile}

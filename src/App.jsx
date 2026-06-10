@@ -3,6 +3,7 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import Login from './components/Login';
 import Layout from './components/Layout';
 import Dashboard from './components/Dashboard';
+import Campaigns from './components/Campaigns';
 import ContactsUpload from './components/ContactsUpload';
 import Templates from './components/Templates';
 import DeviceStatus from './components/DeviceStatus';
@@ -46,6 +47,7 @@ function AppRoutes() {
         }
       >
         <Route index element={<Dashboard />} />
+        <Route path="campaigns" element={<Campaigns />} />
         <Route path="contacts" element={<ContactsUpload />} />
         <Route path="templates" element={<Templates />} />
         <Route path="past-campaigns" element={<Navigate to="/" replace />} />

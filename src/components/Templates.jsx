@@ -6,7 +6,6 @@ export default function Templates() {
   const [templates, setTemplates] = useState([]);
   const [name, setName] = useState('');
   const [text, setText] = useState('');
-  const [buttons, setButtons] = useState([]);
   const [loading, setLoading] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
   const textareaRef = useRef(null);
@@ -51,16 +50,9 @@ export default function Templates() {
     
     setLoading(true);
     try {
-      let finalMsg = text.trim();
-      const validButtons = buttons.filter(b => b.label.trim() && b.url.trim());
-      if (validButtons.length > 0) {
-        finalMsg += '\n\n' + validButtons.map(b => `[${b.label.trim()}]\n${b.url.trim()}`).join('\n\n');
-      }
-
-      await createTemplate({ name: name.trim(), text: finalMsg });
+      await createTemplate({ name: name.trim(), text: text.trim() });
       setName('');
       setText('');
-      setButtons([]);
       setRefreshKey(k => k + 1);
     } catch (err) {
       alert(`Error creating template: ${err.message}`);
@@ -140,65 +132,8 @@ export default function Templates() {
                 style={{ height: '150px' }}
               />
 
-              <div style={{ marginTop: '1.5rem', background: '#0f1117', border: '1px solid #2d3142', padding: '1.25rem', borderRadius: '8px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                  <label style={{ margin: 0, fontWeight: 600, color: '#e8eaed' }}>Action Buttons (Optional)</label>
-                  {buttons.length < 3 && (
-                    <button 
-                      type="button" 
-                      onClick={() => setButtons([...buttons, { label: '', url: '' }])}
-                      style={{ background: 'transparent', color: '#6ba3ff', border: 'none', padding: 0, fontSize: '0.9rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.25rem' }}
-                    >
-                      + Add Button
-                    </button>
-                  )}
-                </div>
-                {buttons.length === 0 ? (
-                  <p style={{ color: '#9aa0a6', fontSize: '0.85rem', margin: 0 }}>
-                    No buttons added. RCS allows up to 3 interactive buttons.
-                  </p>
-                ) : (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                    {buttons.map((btn, i) => (
-                      <div key={i} style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-start', background: '#151821', padding: '1rem', borderRadius: '8px', border: '1px solid #3c4048' }}>
-                        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                          <input 
-                            type="text" 
-                            placeholder="Button Text (e.g. Visit Website)" 
-                            value={btn.label}
-                            onChange={(e) => {
-                              const newBtns = [...buttons];
-                              newBtns[i].label = e.target.value;
-                              setButtons(newBtns);
-                            }}
-                            style={{ padding: '0.6rem', border: '1px solid #3c4048', background: '#0b0c10' }}
-                          />
-                          <input 
-                            type="text" 
-                            placeholder="URL (e.g. https://...)" 
-                            value={btn.url}
-                            onChange={(e) => {
-                              const newBtns = [...buttons];
-                              newBtns[i].url = e.target.value;
-                              setButtons(newBtns);
-                            }}
-                            style={{ padding: '0.6rem', border: '1px solid #3c4048', background: '#0b0c10' }}
-                          />
-                        </div>
-                        <button 
-                          type="button" 
-                          onClick={() => setButtons(buttons.filter((_, idx) => idx !== i))}
-                          style={{ background: 'transparent', color: '#f28b82', border: 'none', padding: '0.5rem', cursor: 'pointer' }}
-                        >
-                          <Trash2 size={18} />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              <div style={{ marginTop: '2rem', marginBottom: '1.5rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              {text && (
+                <div style={{ marginTop: '2rem', marginBottom: '1.5rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                 <h3 style={{ color: '#e8eaed', marginBottom: '1rem', textAlign: 'center' }}>Live Preview</h3>
                 
                 {/* Phone Mockup Frame */}
@@ -226,36 +161,20 @@ export default function Templates() {
                   
                   {/* Chat Body */}
                   <div style={{ background: '#f1f3f4', flex: 1, padding: '1rem', overflowY: 'auto' }}>
-                    {(text || buttons.length > 0) ? (
+                    {text ? (
                       <div style={{ 
                         background: '#fff', 
                         borderRadius: '2px 18px 18px 18px', 
-                        padding: '0.9rem 1.1rem', 
                         color: '#202124', 
                         boxShadow: '0 1px 2px rgba(0,0,0,0.1)',
                         lineHeight: '1.4',
                         fontSize: '0.95rem',
-                        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif'
+                        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
+                        overflow: 'hidden'
                       }}>
-                        {text && <div dangerouslySetInnerHTML={parseMarkdown(text)} />}
-                        
-                        {buttons.length > 0 && (
-                          <div style={{ marginTop: text ? '1rem' : '0' }}>
-                            {buttons.map((b, i) => b.label ? (
-                              <div key={i} style={{ marginBottom: '1rem', whiteSpace: 'pre-wrap' }}>
-                                <div>[{b.label}]</div>
-                                <a 
-                                  href={b.url || '#'} 
-                                  target="_blank" 
-                                  rel="noreferrer"
-                                  style={{ color: '#1a73e8', textDecoration: 'underline', wordBreak: 'break-all' }}
-                                >
-                                  {b.url}
-                                </a>
-                              </div>
-                            ) : null)}
-                          </div>
-                        )}
+                        <div style={{ padding: '0.9rem 1.1rem' }}>
+                          <div dangerouslySetInnerHTML={parseMarkdown(text)} />
+                        </div>
                       </div>
                     ) : (
                       <div style={{ 
