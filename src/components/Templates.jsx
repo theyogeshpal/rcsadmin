@@ -193,6 +193,7 @@ export default function Templates() {
                   </div>
                 </div>
               </div>
+              )}
 
               <button type="submit" disabled={loading || !name.trim() || !text.trim()} style={{ width: '100%', marginTop: '1rem' }}>
                 {loading ? 'Saving...' : 'Save Template'}
