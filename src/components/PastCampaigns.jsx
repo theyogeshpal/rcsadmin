@@ -271,15 +271,17 @@ export default function PastCampaigns({ refreshKey }) {
                                       <tr>
                                         <th>Time</th>
                                         <th>Phone Number</th>
+                                        <th>Sender</th>
                                         <th>Status</th>
                                         <th>Error</th>
                                       </tr>
                                     </thead>
                                     <tbody>
-                                      {logsData.map((log) => (
-                                        <tr key={log._id}>
+                                      {logsData.map((log, idx) => (
+                                        <tr key={log._id || idx}>
                                           <td>{new Date(log.createdAt).toLocaleTimeString()}</td>
-                                          <td>{log.phoneNumber}</td>
+                                          <td style={{ fontWeight: 500 }}>{log.phoneNumber}</td>
+                                          <td style={{ color: '#6ba3ff' }}>{log.senderNumber || 'Unknown'}</td>
                                           <td>
                                             <span style={{ color: log.status === 'sent' ? '#81c995' : '#f28b82' }}>
                                               {log.status.toUpperCase()}
