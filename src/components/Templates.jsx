@@ -198,52 +198,82 @@ export default function Templates() {
                 )}
               </div>
 
-              {(text || buttons.length > 0) && (
-                <div style={{ marginTop: '2rem', marginBottom: '1.5rem' }}>
-                  <label style={{ display: 'block', marginBottom: '0.5rem', color: '#9aa0a6', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                    Live SMS/RCS Preview
-                  </label>
-                  <div style={{ 
-                    background: '#202124', 
-                    borderRadius: '16px 16px 16px 4px', 
-                    padding: '0.9rem 1.1rem', 
-                    maxWidth: '320px', 
-                    color: '#e8eaed',
-                    boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
-                    lineHeight: '1.4',
-                    fontSize: '0.95rem',
-                    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif'
-                  }}>
-                    {text && <div dangerouslySetInnerHTML={parseMarkdown(text)} />}
-                    
-                    {buttons.length > 0 && (
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginTop: text ? '0.75rem' : '0' }}>
-                        {buttons.map((b, i) => b.label ? (
-                          <a 
-                            key={i} 
-                            href={b.url || '#'} 
-                            target="_blank" 
-                            rel="noreferrer"
-                            style={{ 
-                              display: 'block', 
-                              textAlign: 'center', 
-                              padding: '0.6rem', 
-                              border: '1px solid #8ab4f8', 
-                              color: '#8ab4f8', 
-                              borderRadius: '20px', 
-                              textDecoration: 'none', 
-                              fontSize: '0.9rem',
-                              fontWeight: '500'
-                            }}
-                          >
-                            {b.label}
-                          </a>
-                        ) : null)}
+              <div style={{ marginTop: '2rem', marginBottom: '1.5rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                <h3 style={{ color: '#e8eaed', marginBottom: '1rem', textAlign: 'center' }}>Live Preview</h3>
+                
+                {/* Phone Mockup Frame */}
+                <div style={{ 
+                  background: '#f8f9fa', 
+                  border: '12px solid #2d3142', 
+                  borderRadius: '32px', 
+                  width: '320px', 
+                  height: '500px', 
+                  overflow: 'hidden', 
+                  display: 'flex', 
+                  flexDirection: 'column',
+                  boxShadow: '0 10px 25px rgba(0,0,0,0.3)'
+                }}>
+                  {/* Header */}
+                  <div style={{ background: '#fff', padding: '1rem', display: 'flex', alignItems: 'center', gap: '0.75rem', borderBottom: '1px solid #e0e0e0' }}>
+                    <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: '#d2e3fc', color: '#1967d2', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '1.1rem' }}>
+                      B
+                    </div>
+                    <div>
+                      <div style={{ fontWeight: 600, color: '#202124', fontSize: '0.95rem' }}>Business Sender</div>
+                      <div style={{ color: '#5f6368', fontSize: '0.8rem' }}>RCS Message</div>
+                    </div>
+                  </div>
+                  
+                  {/* Chat Body */}
+                  <div style={{ background: '#f1f3f4', flex: 1, padding: '1rem', overflowY: 'auto' }}>
+                    {(text || buttons.length > 0) ? (
+                      <div style={{ 
+                        background: '#fff', 
+                        borderRadius: '2px 18px 18px 18px', 
+                        padding: '0.9rem 1.1rem', 
+                        color: '#202124', 
+                        boxShadow: '0 1px 2px rgba(0,0,0,0.1)',
+                        lineHeight: '1.4',
+                        fontSize: '0.95rem',
+                        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif'
+                      }}>
+                        {text && <div dangerouslySetInnerHTML={parseMarkdown(text)} />}
+                        
+                        {buttons.length > 0 && (
+                          <div style={{ marginTop: text ? '1rem' : '0' }}>
+                            {buttons.map((b, i) => b.label ? (
+                              <div key={i} style={{ marginBottom: '1rem', whiteSpace: 'pre-wrap' }}>
+                                <div>[{b.label}]</div>
+                                <a 
+                                  href={b.url || '#'} 
+                                  target="_blank" 
+                                  rel="noreferrer"
+                                  style={{ color: '#1a73e8', textDecoration: 'underline', wordBreak: 'break-all' }}
+                                >
+                                  {b.url}
+                                </a>
+                              </div>
+                            ) : null)}
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div style={{ 
+                        background: '#fff', 
+                        borderRadius: '2px 18px 18px 18px', 
+                        padding: '0.9rem 1.1rem', 
+                        color: '#9aa0a6', 
+                        boxShadow: '0 1px 2px rgba(0,0,0,0.1)',
+                        fontStyle: 'italic',
+                        fontSize: '0.95rem',
+                        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif'
+                      }}>
+                        Message text preview...
                       </div>
                     )}
                   </div>
                 </div>
-              )}
+              </div>
 
               <button type="submit" disabled={loading || !name.trim() || !text.trim()} style={{ width: '100%', marginTop: '1rem' }}>
                 {loading ? 'Saving...' : 'Save Template'}
