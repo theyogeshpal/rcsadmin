@@ -86,6 +86,13 @@ export async function deleteDevice(deviceId) {
   return apiFetch(`/api/devices/${deviceId}`, { method: 'DELETE' });
 }
 
+export async function updateDeviceLabel(deviceId, label) {
+  return apiFetch(`/api/devices/${deviceId}`, {
+    method: 'PATCH',
+    body: JSON.stringify({ label }),
+  });
+}
+
 export async function retryCampaign(campaignId) {
   return apiFetch(`/api/campaigns/${campaignId}/retry`, { method: 'POST' });
 }

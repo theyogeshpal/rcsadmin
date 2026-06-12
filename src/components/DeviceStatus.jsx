@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { getActiveDevices, deleteDevice } from '../api/client';
+import { getActiveDevices, deleteDevice, updateDeviceLabel } from '../api/client';
 import { Trash2, Phone, Battery, Wifi, Clock, ArrowRightLeft } from 'lucide-react';
 import Loader from './Loader';
 
@@ -7,6 +7,21 @@ export default function DeviceStatus() {
   const [data, setData] = useState({ devices: [], workloadMap: {} });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
+  const [editingId, setEditingId] = useState(null);
+  const [editLabel, setEditLabel] = useState('');
+
+  async function handleUpdateLabel(deviceId) {
+    try {
+      await updateDeviceLabel(deviceId, editLabel);
+      setData(prev => ({
+        ...prev,
+        devices: prev.devices.map(d => d.deviceId === deviceId ? { ...d, label: editLabel } : d)
+      }));
+      setEditingId(null);
+    } catch (err) {
+      alert(err.message);
+    }
+  }
 
   useEffect(() => {
     let cancelled = false;
@@ -73,7 +88,31 @@ export default function DeviceStatus() {
                   {d.phoneNumbers && d.phoneNumbers.length > 0 ? d.phoneNumbers.join(' / ') : 'N/A'}
                 </td>
                 <td style={{ color: '#9aa0a6', fontSize: '0.8rem' }}>{d.deviceId.substring(0, 8)}...</td>
-                <td>{d.label || '—'}</td>
+                <td>
+                  {editingId === d.deviceId ? (
+                    <div style={{ display: 'flex', gap: '4px' }}>
+                      <input 
+                        type="text" 
+                        value={editLabel} 
+                        onChange={(e) => setEditLabel(e.target.value)} 
+                        style={{ padding: '4px', width: '120px', borderRadius: '4px', border: '1px solid #30363d', background: '#0d1117', color: '#fff' }}
+                        autoFocus
+                      />
+                      <button onClick={() => handleUpdateLabel(d.deviceId)} style={{ padding: '4px 8px', cursor: 'pointer', background: '#238636', color: '#fff', border: 'none', borderRadius: '4px' }}>Save</button>
+                      <button onClick={() => setEditingId(null)} style={{ padding: '4px 8px', cursor: 'pointer', background: '#30363d', color: '#fff', border: 'none', borderRadius: '4px' }}>Cancel</button>
+                    </div>
+                  ) : (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <span>{d.label || '—'}</span>
+                      <button 
+                        onClick={() => { setEditingId(d.deviceId); setEditLabel(d.label || ''); }}
+                        style={{ background: 'none', border: 'none', color: '#58a6ff', cursor: 'pointer', padding: 0, fontSize: '0.8rem', textDecoration: 'underline' }}
+                      >
+                        Edit
+                      </button>
+                    </div>
+                  )}
+                </td>
                 <td>{d.lastHeartbeat ? new Date(d.lastHeartbeat).toLocaleString() : '—'}</td>
                 <td>
                   A:{d.workload?.assigned ?? 0} P:{d.workload?.inProgress ?? 0} C:
