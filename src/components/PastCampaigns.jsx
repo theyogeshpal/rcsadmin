@@ -145,7 +145,9 @@ export default function PastCampaigns({ refreshKey }) {
       {!loading && campaigns.length > 0 && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           {campaigns.map((c) => {
-            const isFailed = c.status === 'failed' || (c.status === 'completed' && c.stats?.failed > 0);
+            const canRetry = c.status === 'failed' || 
+                             (c.status === 'completed' && c.stats?.failed > 0) || 
+                             (c.status === 'dispatched' && (c.stats?.failed > 0 || c.stats?.pending > 0));
             
             return (
               <div key={c._id} style={{ background: '#0f1117', border: '1px solid #2d3142', borderRadius: '10px', overflow: 'hidden' }}>
@@ -179,14 +181,14 @@ export default function PastCampaigns({ refreshKey }) {
                       {expandedId === c._id ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                     </button>
                     
-                    {isFailed && (
+                    {canRetry && (
                       <button 
                         type="button"
                         onClick={() => handleRetry(c._id)}
                         style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: '#3a3520', color: '#fdd663' }}
-                        title="Retry Failed Numbers"
+                        title="Retry Failed & Pending Numbers"
                       >
-                        <RotateCcw size={16} /> Retry
+                        <RotateCcw size={16} /> Retry Failed/Pending
                       </button>
                     )}
 
